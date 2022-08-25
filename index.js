@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import products from './routers/Product.routers.js';
+import products from './app/routers/Product.routers.js';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: './development.env' });
