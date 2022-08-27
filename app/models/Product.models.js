@@ -25,6 +25,10 @@ const schema = new mongoose.Schema(
       type: Number,
       default: 30,
     },
+    sale: {
+      type: Number,
+      default: 0,
+    },
     is: {
       hot: {
         type: Boolean,
@@ -34,11 +38,26 @@ const schema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
+      sale: {
+        type: Boolean,
+        default: false,
+      },
     },
     image: {
-      type: String,
-      default:
-        'https://specs-tech.com/wp-content/uploads/2021/07/Xiaomi-Poco-F4-2.jpg',
+      main: {
+        type: String,
+        default:
+          'https://specs-tech.com/wp-content/uploads/2021/07/Xiaomi-Poco-F4-2.jpg',
+      },
+      library: {
+        type: Array,
+        default: [
+          'https://specs-tech.com/wp-content/uploads/2021/07/Xiaomi-Poco-F4-2.jpg',
+          'https://m.media-amazon.com/images/I/41T92QRpW-L._AC_SL1001_.jpg',
+          'https://m.media-amazon.com/images/I/51Jd+uGiZBL._AC_SL1001_.jpg',
+          'https://m.media-amazon.com/images/I/61qC7BIjHiL._AC_SL1001_.jpg',
+        ],
+      },
     },
   },
   { timestamps: true }

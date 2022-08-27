@@ -16,3 +16,7 @@ export const getAllProducts = async (req, res) => {
 export const getProduct = (req, res) => {
   res.send('router success');
 };
+
+export const createProduct = (req, res) => {
+  res.send('create success');
+};
