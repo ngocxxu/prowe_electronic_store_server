@@ -1,10 +1,10 @@
 GET http://localhost:4030/books
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NjE4NTU1NDQsImV4cCI6MTY2MTg1NTU3NH0.x3NtCHvvWRmU9smr5u8iWGNs92gioK-a7N4cZkMnGp0
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NjE4NTU1NDQsImV4cCI6MTY2MTg1NTU3NH0.x3NtCHvvWRmU9smr5u8iWGNs92gioK-a7N4cZkMnGp0
 
 ###
 
 POST http://localhost:4030/login 
-content-type: application/json
+Content-Type: application/json
 
 {
 "username": "bono",
