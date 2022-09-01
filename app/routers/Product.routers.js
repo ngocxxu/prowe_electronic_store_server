@@ -1,4 +1,5 @@
 import express from 'express';
+import { authenToken } from '../controllers/auth.controllers.js';
 import {
   getAllProducts,
   getProduct,
@@ -7,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get('/', getAllProducts);
+router.get('/', authenToken ,getAllProducts);
 
 router.get('/id', getProduct);
 
