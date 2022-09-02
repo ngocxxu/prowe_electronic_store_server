@@ -8,7 +8,7 @@ import {
 
 const router = express.Router();
 
-router.get('/', authenToken ,getAllProducts);
+router.get('/', getAllProducts);
 
 router.get('/id', getProduct);
 

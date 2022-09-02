@@ -4,8 +4,6 @@ import CryptoJS from 'crypto-js';
 import { AuthModel, RTModel } from '../models/auth.models.js';
 dotenv.config({ path: '../../development.env' });
 
-let refreshTokens = [];
-
 export const registerAuth = async (req, res) => {
   try {
     const checkEmail = req.body.email;
