@@ -4,7 +4,7 @@ import CryptoJS from 'crypto-js';
 import { AuthModel, RTModel } from '../models/auth.models.js';
 dotenv.config({ path: '../../development.env' });
 
-export const registerAuth = async (req, res) => {
+export const registerAuth = async (req, res, next) => {
   try {
     const checkEmail = req.body.email;
     const resultAfterCheck = await AuthModel.findOne({
@@ -36,18 +36,18 @@ export const loginAuth = async (req, res) => {
     const resultAfterCheck = await AuthModel.findOne({
       email: checkEmail,
     });
-    if (!resultAfterCheck) {
+    if (!resultAfterCheck)
       return res.status(401).json({ error: 'Your email is wrong' });
-    }
 
     // Check Password
     const originalPassword = CryptoJS.AES.decrypt(
       resultAfterCheck.password,
       process.env.PASS_SEC
     ).toString(CryptoJS.enc.Utf8);
-
     const inputPassword = req.body.password;
-    originalPassword != inputPassword && res.status(401).json('Wrong Password');
+
+    if (originalPassword != inputPassword)
+      return res.status(401).json('Wrong Password');
 
     // AT & RT
     const accessToken = jwt.sign(
@@ -72,13 +72,14 @@ export const loginAuth = async (req, res) => {
       }
     );
 
-    // Storage refresh token
+    // Storage refresh token in DB
     await new RTModel({
       rfToken: refreshToken,
     }).save();
 
-    res.json({ accessToken, refreshToken });
+    res.status(200).json({ accessToken, refreshToken });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: err });
   }
 };
@@ -87,15 +88,15 @@ export const refreshTokenAuth = async (req, res) => {
   try {
     const refreshToken = req.body.token;
 
-    if (!refreshToken) res.sendStatus(401); // unauthorized
+    if (!refreshToken) return res.sendStatus(401); // unauthorized
 
     const resultRTAfterCheck = await RTModel.findOne({ rfToken: refreshToken });
 
-    if (!resultRTAfterCheck) res.sendStatus(403); // Forbidden
+    if (!resultRTAfterCheck) return res.sendStatus(403); // Forbidden
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
       console.log(err, data);
-      if (err) res.sendStatus(403);
+      if (err) return res.sendStatus(403);
 
       // When it success --> create new AT
       const accessToken = jwt.sign(
@@ -131,11 +132,11 @@ export const authenToken = (req, res, next) => {
 
   // 'Bearer [token]'
   const token = authorizationHeader.split(' ')[1];
-  if (!token) res.sendStatus(401);
+  if (!token) return res.sendStatus(401);
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
     console.log(err, data);
-    if (err) res.sendStatus(403);
+    if (err) return res.sendStatus(403);
 
     // Neu co data thi ham next() => /books
     next();

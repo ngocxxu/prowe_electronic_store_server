@@ -2,25 +2,33 @@ import mongoose from 'mongoose';
 
 const schema = new mongoose.Schema(
   {
+    userId: {
+      type: String,
+      default: '',
+    },
     firstname: {
       type: String,
-      default: 'Bono',
+      default: '',
     },
     lastname: {
       type: String,
-      default: 'Poon',
+      default: '',
     },
     email: {
       type: String,
-      default: 'abc@gmail.com',
+      default: '',
     },
-    phone: {
+    country: {
       type: String,
-      default: '0123 456 789',
+      default: '',
     },
-    password: {
+    city: {
       type: String,
-      default: 'ngoc25',
+      default: '',
+    },
+    address: {
+      type: String,
+      default: '',
     },
   },
   { timestamps: true }
