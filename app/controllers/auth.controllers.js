@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import CryptoJS from 'crypto-js';
 import { AuthModel, RTModel } from '../models/auth.models.js';
 dotenv.config({ path: '../../development.env' });
+const { TokenExpiredError } = jwt;
 
 export const registerAuth = async (req, res, next) => {
   try {
@@ -23,7 +24,7 @@ export const registerAuth = async (req, res, next) => {
     });
 
     const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
+    res.status(200).json(savedUser);
   } catch (err) {
     res.status(500).json({ error: err });
   }
@@ -88,15 +89,16 @@ export const refreshTokenAuth = async (req, res) => {
   try {
     const refreshToken = req.body.token;
 
-    if (!refreshToken) return res.sendStatus(401); // unauthorized
+    if (!refreshToken) return res.status(403).send('No token provided!');
 
     const resultRTAfterCheck = await RTModel.findOne({ rfToken: refreshToken });
 
-    if (!resultRTAfterCheck) return res.sendStatus(403); // Forbidden
+    if (!resultRTAfterCheck)
+      return res.status(401).send('Unauthorized! Refresh Token was expired!');
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
       console.log(err, data);
-      if (err) return res.sendStatus(403);
+      if (err) return res.status(401).json('Unauthorized!');
 
       // When it success --> create new AT
       const accessToken = jwt.sign(
@@ -126,17 +128,34 @@ export const logoutAuth = async (req, res) => {
   }
 };
 
+export const getMyUser = async (req, res) => {
+  const parseJwt = handleParseJwt(req);
+  const resultAfterCheck = await AuthModel.findOne({ _id: parseJwt._id });
+  res.status(200).json(resultAfterCheck);
+};
+
+// Handle parse JWT
+export const handleParseJwt = (req) => {
+  const authorizationHeader = req.headers['authorization'];
+  const token = authorizationHeader.split(' ')[1];
+  return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+};
+
 // Check token from client
 export const authenToken = (req, res, next) => {
   const authorizationHeader = req.headers['authorization'];
 
   // 'Bearer [token]'
   const token = authorizationHeader.split(' ')[1];
-  if (!token) return res.sendStatus(401);
+  if (!token) return res.status(403).send('No token provided!');
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
     console.log(err, data);
-    if (err) return res.sendStatus(403);
+    if (err instanceof TokenExpiredError) {
+      return res.status(401).send('Unauthorized! Access Token was expired!');
+    } else if (err) {
+      return res.status(401).json('Unauthorized!');
+    }
 
     // Neu co data thi ham next() => /books
     next();
