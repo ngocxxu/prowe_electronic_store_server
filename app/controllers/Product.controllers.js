@@ -13,8 +13,17 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-export const getProduct = (req, res) => {
-  res.send('router success');
+export const getProduct = async (req, res) => {
+  try {
+    // const isExist = ProductModel.find({ _id: req.params.id }).count() > 0;
+    // if (isExist) return res.status(400).json('Not found!');
+
+    const product = await ProductModel.findOne({ _id: req.params.id });
+
+    res.status(200).json(product);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
 };
 
 export const createProduct = (req, res) => {

@@ -46,6 +46,10 @@ const schema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
+      delete: {
+        type: Boolean,
+        default: false,
+      },
     },
     image: {
       main: {
