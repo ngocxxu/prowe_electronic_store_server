@@ -18,6 +18,11 @@ export const getProduct = async (req, res) => {
     // const isExist = ProductModel.find({ _id: req.params.id }).count() > 0;
     // if (isExist) return res.status(400).json('Not found!');
 
+    const isExist = await ProductModel.find({ _id: req.params.id }).limit(1).length === 1;
+    if (!isExist) {
+      return res.status(401).json('Wrong IdProduct');
+    }
+
     const product = await ProductModel.findOne({ _id: req.params.id });
 
     res.status(200).json(product);

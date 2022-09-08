@@ -10,6 +10,18 @@ const schema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    idCart: {
+      type: String,
+      default: mongoose.Types.ObjectId()
+    },
+    idFavor: {
+      type: String,
+      default: mongoose.Types.ObjectId()
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
     isAdmin: {
       type: Boolean,
       default: false,
