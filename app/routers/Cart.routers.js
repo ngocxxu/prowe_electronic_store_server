@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  removeAllToCart,
+  removeAllCart,
   removeToCart,
   updateToCart,
   addToCart,
@@ -17,6 +17,6 @@ router.put('/:id/items/:idProduct', updateToCart);
 
 router.delete('/:id/items/:idProduct', removeToCart);
 
-router.delete('/:id/items', removeAllToCart);
+router.delete('/:id/items', removeAllCart);
 
 export default router;

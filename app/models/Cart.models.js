@@ -1,27 +1,103 @@
 import mongoose from 'mongoose';
+import { ProductModel } from './Product.models.js';
 
-const schema = new mongoose.Schema({
-  idCart: {
-    type: String,
-    required: true,
+const schema = new mongoose.Schema(
+  {
+    idCart: {
+      type: String,
+      required: true,
+    },
+    totalItems: {
+      type: Number,
+      default: 0,
+    },
+    subTotal: {
+      type: Number,
+      default: 0,
+    },
+    lineItems: [
+      {
+        name: {
+          type: String,
+          default: 'Xiaomi Poco F4',
+        },
+        description: {
+          type: String,
+          default:
+            'Flagship 4nm Snapdragon® 8 Gen 1 Smart 120W HyperCharge 120Hz flat AMOLED display',
+        },
+        price: {
+          raw: {
+            type: Number,
+            default: 650,
+          },
+        },
+        categories: {
+          type: Array,
+          default: ['Mobiles', 'Tablets'],
+        },
+        inventory: {
+          type: Number,
+          default: 30,
+        },
+        sale: {
+          type: Number,
+          default: 0,
+        },
+        is: {
+          hot: {
+            type: Boolean,
+            default: false,
+          },
+          available: {
+            type: Boolean,
+            default: false,
+          },
+          sale: {
+            type: Boolean,
+            default: false,
+          },
+          new: {
+            type: Boolean,
+            default: false,
+          },
+          delete: {
+            type: Boolean,
+            default: false,
+          },
+        },
+        image: {
+          main: {
+            type: String,
+            default:
+              'https://specs-tech.com/wp-content/uploads/2021/07/Xiaomi-Poco-F4-2.jpg',
+          },
+          library: {
+            type: Array,
+            default: [
+              'https://specs-tech.com/wp-content/uploads/2021/07/Xiaomi-Poco-F4-2.jpg',
+              'https://m.media-amazon.com/images/I/41T92QRpW-L._AC_SL1001_.jpg',
+              'https://m.media-amazon.com/images/I/51Jd+uGiZBL._AC_SL1001_.jpg',
+              'https://m.media-amazon.com/images/I/61qC7BIjHiL._AC_SL1001_.jpg',
+            ],
+          },
+        },
+        quantity: {
+          type: Number,
+          default: 1,
+        },
+        subTotalProduct: {
+          type: Number,
+          default: 0,
+        },
+      },
+    ],
+    discount: {
+      type: Array,
+      default: [],
+    },
   },
-  totalItems: {
-    type: Number,
-    default: 0,
-  },
-  subTotal: {
-    type: Number,
-    default: 0,
-  },
-  lineItems: {
-    type: Array,
-    default: [],
-  },
-  discount: {
-    type: Array,
-    default: [],
-  },
-  timestamps: true,
-});
+  { timestamps: true }
+);
 
 export const CartModel = mongoose.model('Cart', schema);

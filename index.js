@@ -2,7 +2,9 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import mongoose from 'mongoose';
+import { authenToken } from './app/controllers/auth.controllers.js';
 import auth from './app/routers/auth.routers.js';
+import cart from './app/routers/Cart.routers.js';
 import products from './app/routers/Product.routers.js';
 import user from './app/routers/User.routers.js';
 dotenv.config({ path: './development.env' });
@@ -13,8 +15,9 @@ app.use(express.json({ limit: '30mb' }));
 app.use(express.urlencoded({ extended: true, limit: '30mb' }));
 
 app.use('/api/products', products);
-app.use('/api/user', user);
 app.use('/api/auth', auth);
+app.use('/api/user', user);
+app.use('/api/cart', authenToken, cart);
 
 mongoose
   .connect(process.env.DATABASE_URL, {

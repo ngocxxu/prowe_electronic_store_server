@@ -97,7 +97,7 @@ export const refreshTokenAuth = async (req, res) => {
       return res.status(401).send('Unauthorized! Refresh Token was expired!');
 
     jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
-      console.log(err, data);
+      // console.log(err, data);
       if (err) return res.status(401).json('Unauthorized!');
 
       // When it success --> create new AT
@@ -150,7 +150,7 @@ export const authenToken = (req, res, next) => {
   if (!token) return res.status(403).send('No token provided!');
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
-    console.log(err, data);
+    // console.log(err, data);
     if (err instanceof TokenExpiredError) {
       return res.status(401).send('Unauthorized! Access Token was expired!');
     } else if (err) {
