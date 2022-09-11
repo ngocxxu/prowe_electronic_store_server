@@ -21,14 +21,16 @@ export const getCart = async (req, res) => {
 export const addToCart = async (req, res) => {
   try {
     const product = await ProductModel.findOne({ _id: req.body.idProduct });
-    const cart = await CartModel.findOneAndUpdate(
+    const cart = await CartModel.updateOne(
       { idCart: req.params.id },
       {
         $push: {
           lineItems: {
             ...product,
-            subTotalProduct: product.price.raw,
           },
+        },
+        $set: {
+          subTotalProduct: product.price.raw,
         },
       }
     );
@@ -43,10 +45,38 @@ export const updateToCart = (req, res) => {
   res.send('create success');
 };
 
-export const removeToCart = (req, res) => {
-  res.send('create success');
+export const removeToCart = async (req, res) => {
+  try {
+    const cart = await CartModel.updateOne(
+      { idCart: req.params.id },
+      {
+        $pull: {
+          lineItems: {
+            _id: req.params.idProduct,
+          },
+        },
+      }
+    );
+
+    res.status(200).json(cart);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
 };
 
-export const removeAllCart = (req, res) => {
-  res.send('create success');
+export const removeAllCart = async (req, res) => {
+  try {
+    const cart = await CartModel.updateOne(
+      { idCart: req.params.id },
+      {
+        $pull: {
+          lineItems: [],
+        },
+      }
+    );
+
+    res.status(200).json(cart);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
 };

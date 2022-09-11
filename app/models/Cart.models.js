@@ -82,7 +82,7 @@ const schema = new mongoose.Schema(
             ],
           },
         },
-        quantity: {
+        subQuantity: {
           type: Number,
           default: 1,
         },
