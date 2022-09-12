@@ -22,6 +22,31 @@ export const addToCart = async (req, res) => {
   try {
     const product = await ProductModel.findOne({ _id: req.body.idProduct });
     const cart = await CartModel.updateOne(
+      { idCart: req.params.id, 'lineItems._id': req.body.idProduct },
+      {
+        $push: {
+          lineItems: {
+            ...product,
+          },
+        },
+        $set: {
+          '$lineItems.subTotalProduct': product.price.raw,
+        },
+        // totalItems: {
+        //   $sum: '$lineItems.price.raw',
+        // },
+      }
+    );
+    res.status(200).json(cart);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+};
+
+export const updateToCart = async (req, res) => {
+  try {
+    const product = await ProductModel.findOne({ _id: req.body.idProduct });
+    const cart = await CartModel.updateOne(
       { idCart: req.params.id },
       {
         $push: {
@@ -39,10 +64,6 @@ export const addToCart = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err });
   }
-};
-
-export const updateToCart = (req, res) => {
-  res.send('create success');
 };
 
 export const removeToCart = async (req, res) => {
@@ -69,7 +90,7 @@ export const removeAllCart = async (req, res) => {
     const cart = await CartModel.updateOne(
       { idCart: req.params.id },
       {
-        $pull: {
+        $set: {
           lineItems: [],
         },
       }
