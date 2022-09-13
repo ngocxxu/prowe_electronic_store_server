@@ -20,9 +20,18 @@ export const getCart = async (req, res) => {
 
 export const addToCart = async (req, res) => {
   try {
+    const {idProduct} = req.body
+    const {idCart} = req.params
     const product = await ProductModel.findOne({ _id: req.body.idProduct });
+    const currentCart = await CartModel.findById(req.body.idProduct)
+    const currentItems = currentCart.lineItems.map(i => i._id)
+    if(currentItems.include(idProduct)){
+      await CartModel.updateOne({idCart: idCart}, {
+        lineItems
+      })
+    }
     const cart = await CartModel.updateOne(
-      { idCart: req.params.id, 'lineItems._id': req.body.idProduct },
+      { idCart: idCart, 'lineItems._id': idProduct },
       {
         $push: {
           lineItems: {
