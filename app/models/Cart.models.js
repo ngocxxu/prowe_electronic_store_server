@@ -15,12 +15,7 @@ const schema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    lineItems: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Order',
-      },
-    ],
+    lineItems: Array,
     discount: {
       type: Array,
       default: [],

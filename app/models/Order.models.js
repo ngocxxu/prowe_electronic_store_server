@@ -5,7 +5,11 @@ const schema = new mongoose.Schema(
   {
     _id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'SubCategory',
+      ref: 'Cart',
+    },
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
     },
     subQuantity: {
       type: Number,

@@ -26,7 +26,7 @@ export const registerAuth = async (req, res, next) => {
     const savedUser = await newUser.save();
     res.status(200).json(savedUser);
   } catch (err) {
-    res.status(500).json({ error: err });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -141,7 +141,7 @@ export const handleParseJwt = (req) => {
   return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
 };
 
-// Check token from client
+// Check token from client - MIDDLEWARE
 export const authenToken = (req, res, next) => {
   const authorizationHeader = req.headers['authorization'];
 

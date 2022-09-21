@@ -1,4 +1,5 @@
 import { CartModel } from '../models/Cart.models.js';
+import { OrderModel } from '../models/Order.models.js';
 import { ProductModel } from '../models/Product.models.js';
 
 export const getCart = async (req, res) => {
@@ -20,35 +21,61 @@ export const getCart = async (req, res) => {
 
 export const addToCart = async (req, res) => {
   try {
-    const {idProduct} = req.body
-    const {idCart} = req.params
     const product = await ProductModel.findOne({ _id: req.body.idProduct });
-    const currentCart = await CartModel.findById(req.body.idProduct)
-    const currentItems = currentCart.lineItems.map(i => i._id)
-    if(currentItems.include(idProduct)){
-      await CartModel.updateOne({idCart: idCart}, {
-        lineItems
-      })
-    }
-    const cart = await CartModel.updateOne(
-      { idCart: idCart, 'lineItems._id': idProduct },
+
+    // Find idProduct exist in LineItems
+    const cart = await CartModel.findOneAndUpdate(
       {
-        $push: {
-          lineItems: {
-            ...product,
-          },
+        lineItems: { $elemMatch: { idProduct: req.body.idProduct } },
+      },
+      {
+        $inc: {
+          'lineItems.$.subQuantity': +req.body.quantity,
+          'lineItems.$.subTotalProduct': +req.body.price,
         },
-        $set: {
-          '$lineItems.subTotalProduct': product.price.raw,
-        },
-        // totalItems: {
-        //   $sum: '$lineItems.price.raw',
-        // },
       }
     );
+
+    
+
+    if (cart === null) {
+      const cart = await CartModel.findOneAndUpdate(
+        { idCart: req.params.id },
+        {
+          $push: {
+            lineItems: {
+              product,
+              idProduct: req.body.idProduct,
+              subQuantity: req.body.quantity,
+              subTotalProduct: req.body.price,
+            },
+          },
+        }
+      );
+      // const cart = await CartModel.aggregate([
+      //   {
+      //     $match: { idCart: req.params.id },
+      //   },
+      //   {
+      //     $group: {
+      //       _id: req.body.idProduct,
+      //       lineItems: {
+      //         $push: {
+      //           product,
+      //           idProduct: req.body.idProduct,
+      //           subQuantity: req.body.quantity,
+      //           subTotalProduct: req.body.price,
+      //         },
+      //       },
+      //     },
+      //   },
+      //   { $project : { totalItems : 1 , subTotal : 1 , lineItems: 1 } }
+      // ]);
+      return res.status(200).json(cart);
+    }
     res.status(200).json(cart);
   } catch (err) {
-    res.status(500).json({ error: err });
+    res.status(500).json({ error: err.message });
   }
 };
 
@@ -82,7 +109,7 @@ export const removeToCart = async (req, res) => {
       {
         $pull: {
           lineItems: {
-            _id: req.params.idProduct,
+            idProduct: req.params.idProduct,
           },
         },
       }
