@@ -13,7 +13,7 @@ router.get('/:id', getCart);
 
 router.post('/:id', addToCart);
 
-router.put('/:id/items/:idProduct', updateToCart);
+router.put('/:id', updateToCart);
 
 router.delete('/:id/items/:idProduct', removeToCart);
 

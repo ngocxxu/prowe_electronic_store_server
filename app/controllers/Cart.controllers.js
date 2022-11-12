@@ -21,10 +21,11 @@ export const getCart = async (req, res) => {
 
 export const addToCart = async (req, res) => {
   try {
+    let cart;
     const product = await ProductModel.findOne({ _id: req.body.idProduct });
 
     // Find idProduct exist in LineItems
-    const cart = await CartModel.findOneAndUpdate(
+    cart = await CartModel.findOneAndUpdate(
       {
         lineItems: { $elemMatch: { idProduct: req.body.idProduct } },
       },
@@ -36,10 +37,8 @@ export const addToCart = async (req, res) => {
       }
     );
 
-    
-
     if (cart === null) {
-      const cart = await CartModel.findOneAndUpdate(
+      cart = await CartModel.findOneAndUpdate(
         { idCart: req.params.id },
         {
           $push: {
@@ -52,6 +51,11 @@ export const addToCart = async (req, res) => {
           },
         }
       );
+
+      cart = await CartModel.findOneAndUpdate({ idCart: req.params.id }, [
+        { $set: { subTotal: { $sum: '$lineItems.subTotalProduct' } } },
+      ]);
+
       // const cart = await CartModel.aggregate([
       //   {
       //     $match: { idCart: req.params.id },
@@ -71,9 +75,17 @@ export const addToCart = async (req, res) => {
       //   },
       //   { $project : { totalItems : 1 , subTotal : 1 , lineItems: 1 } }
       // ]);
-      return res.status(200).json(cart);
     }
-    res.status(200).json(cart);
+
+    cart = await CartModel.findOne({ idCart: req.params.id }).lean();
+    const calTotalPrice = cart.lineItems.reduce(
+      (a, b) => a + b.subTotalProduct,
+      0
+    );
+
+    cart.subTotal = calTotalPrice;
+
+    return res.status(200).json(cart);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -81,30 +93,43 @@ export const addToCart = async (req, res) => {
 
 export const updateToCart = async (req, res) => {
   try {
-    const product = await ProductModel.findOne({ _id: req.body.idProduct });
-    const cart = await CartModel.updateOne(
-      { idCart: req.params.id },
+    let cart;
+
+    // Find idProduct exist in LineItems
+    cart = await CartModel.findOneAndUpdate(
       {
-        $push: {
-          lineItems: {
-            ...product,
-          },
-        },
+        lineItems: { $elemMatch: { idProduct: req.body.idProduct } },
+      },
+      {
         $set: {
-          subTotalProduct: product.price.raw,
+          'lineItems.$.subQuantity': req.body.quantity,
+        },
+        $mul: {
+          'lineItems.$.subTotalProduct': req.body.quantity,
         },
       }
     );
 
+    cart = await CartModel.findOne({ idCart: req.params.id }).lean();
+    const cartTotalPrice = cart.lineItems.reduce(
+      (a, b) => a + b.subTotalProduct,
+      0
+    );
+
+    cart.subTotal = cartTotalPrice;
+
     res.status(200).json(cart);
   } catch (err) {
-    res.status(500).json({ error: err });
+    res.status(500).json({ error: err.message });
   }
 };
 
 export const removeToCart = async (req, res) => {
   try {
-    const cart = await CartModel.updateOne(
+    console.log(req.params.id);
+    console.log(req.params.idProduct);
+    let cart;
+    cart = await CartModel.updateOne(
       { idCart: req.params.id },
       {
         $pull: {
@@ -114,6 +139,14 @@ export const removeToCart = async (req, res) => {
         },
       }
     );
+
+    cart = await CartModel.findOne({ idCart: req.params.id }).lean();
+    const cartTotalPrice = cart.lineItems.reduce(
+      (a, b) => a + b.subTotalProduct,
+      0
+    );
+
+    cart.subTotal = cartTotalPrice;
 
     res.status(200).json(cart);
   } catch (err) {
