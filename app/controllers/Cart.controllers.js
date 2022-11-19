@@ -137,7 +137,12 @@ export const updateToCart = async (req, res) => {
     //   },
     // ]);
 
-    cart = await CartModel.updateOne({ idCart: req.params.id }, [
+    cart = await CartModel.aggregate([
+      {
+        $match: {
+          idCart: req.params.id,
+        },
+      },
       {
         $unwind: '$lineItems',
       },
