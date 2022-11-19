@@ -97,26 +97,54 @@ export const updateToCart = async (req, res) => {
     console.log(req.body.quantity);
 
     // Find idProduct exist in LineItems
-    cart = await CartModel.findOneAndUpdate(
-      {
-        lineItems: { $elemMatch: { idProduct: req.body.idProduct } },
-      },
+    // cart = await CartModel.findOneAndUpdate(
+    //   {
+    //     lineItems: { $elemMatch: { idProduct: req.body.idProduct } },
+    //   },
 
-      {
-        $set: {
-          'lineItems.$.subQuantity': req.body.quantity,
-        },
-      }
-    );
+    //   {
+    //     $set: {
+    //       'lineItems.$.subQuantity': req.body.quantity,
+    //     },
+    //   }
+    // );
 
-    cart = await CartModel.aggregate([
-      {
-        $match: {
-          idCart: req.params.id,
-        },
-      },
+    // cart = await CartModel.aggregate([
+    //   {
+    //     $match: {
+    //       idCart: req.params.id,
+    //     },
+    //   },
+    //   {
+    //     $unwind: '$lineItems',
+    //   },
+    //   {
+    //     $set: {
+    //       'lineItems.subQuantity': req.body.quantity,
+    //     },
+    //   },
+    //   {
+    //     $set: {
+    //       'lineItems.subTotalProduct': {
+    //         $multiply: [
+    //           '$lineItems.subQuantity',
+    //           {
+    //             $toInt: '$lineItems.product.price.raw',
+    //           },
+    //         ],
+    //       },
+    //     },
+    //   },
+    // ]);
+
+    cart = await CartModel.updateOne({ idCart: req.params.id }, [
       {
         $unwind: '$lineItems',
+      },
+      {
+        $set: {
+          'lineItems.subQuantity': req.body.quantity,
+        },
       },
       {
         $set: {
