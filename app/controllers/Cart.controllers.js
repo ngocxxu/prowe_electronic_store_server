@@ -3,13 +3,14 @@ import { ProductModel } from '../models/Product.models.js';
 
 export const getCart = async (req, res) => {
   try {
-    const cart = await CartModel.findOne({ idCart: req.params.id });
+    let cart;
+    cart = await CartModel.findOne({ idCart: req.params.id });
 
     if (!cart) {
-      const data = new CartModel({
+      cart = new CartModel({
         idCart: req.params.id,
       });
-      data.save();
+      cart.save();
     }
 
     res.status(200).json(cart);
@@ -36,6 +37,7 @@ export const addToCart = async (req, res) => {
       }
     );
 
+    // If product not exist in Cart => push it into Cart
     if (cart === null) {
       cart = await CartModel.findOneAndUpdate(
         { idCart: req.params.id },
