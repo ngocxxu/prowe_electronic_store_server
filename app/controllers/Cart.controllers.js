@@ -186,16 +186,20 @@ export const removeToCart = async (req, res) => {
 
 export const removeAllCart = async (req, res) => {
   try {
-    const cart = await CartModel.updateOne(
-      { idCart: req.params.id },
+    const cart = await CartModel.aggregate([
+      { $match: { idCart: req.params.id } },
       {
         $set: {
           lineItems: [],
         },
-      }
-    );
-
-    console.log(cart);
+      },
+      {
+        $set: {
+          subTotal: 0,
+        },
+      },
+      { $out: 'carts' },
+    ]);
 
     res.status(200).json(cart);
   } catch (err) {
