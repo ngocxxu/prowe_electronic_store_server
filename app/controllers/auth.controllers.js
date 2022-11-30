@@ -58,7 +58,7 @@ export const loginAuth = async (req, res) => {
       },
       process.env.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: '600s',
+        expiresIn: '6days',
       }
     );
 
@@ -69,7 +69,7 @@ export const loginAuth = async (req, res) => {
       },
       process.env.REFRESH_TOKEN_SECRET,
       {
-        expiresIn: '2days',
+        expiresIn: '12days',
       }
     );
 
@@ -104,7 +104,7 @@ export const refreshTokenAuth = async (req, res) => {
       const accessToken = jwt.sign(
         { _id: data._id, isAdmin: data.isAdmin },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '600s' }
+        { expiresIn: '6days' }
       );
 
       res.json({ accessToken });
