@@ -1,6 +1,7 @@
 import { CartModel } from '../models/Cart.models.js';
 import { Cart2Model } from '../models/Cart2.models.js';
 import { ProductModel } from '../models/Product.models.js';
+import mongoose from 'mongoose';
 
 // export const getCart = async (req, res) => {
 //   try {
@@ -22,37 +23,34 @@ import { ProductModel } from '../models/Product.models.js';
 
 export const getCart = async (req, res) => {
   try {
-    const priceProd = await ProductModel.findOne({
-      idProduct: req.body.idProduct,
-    });
-
     let cart;
     cart = await Cart2Model.findOne({ idCart: req.params.id });
 
-    if (!cart) {
-      cart = new Cart2Model({
+    if (cart) {
+      // put minus (-) before _id, __v, idCart to remove them out of response
+      cart = await Cart2Model.find({ idCart: req.params.id })
+        .select('-idCart -_id -__v')
+        .populate('product')
+        .lean();
+
+      const result = {
+        lineItems: cart,
         idCart: req.params.id,
-        product: req.body.idProduct,
-        subQuantity: 1,
-        subTotalProduct: priceProd.price.raw,
-      });
-      cart.save();
+        totalItems: cart.length,
+        subTotal: cart.reduce(
+          (accumulator, currentValue) =>
+            accumulator + currentValue.subTotalProduct,
+          0
+        ),
+      };
+
+      return res.status(200).json(result);
     }
 
-    // put minus (-) before _id, __v, idCart to remove them out of response
-    cart = await Cart2Model.find({ idCart: req.params.id })
-      .select('-idCart -_id -__v')
-      .populate('product');
-
-    // cart.lean().reduce(
-    //   (accumulator, currentValue) => accumulator + currentValue.subTotalProduct,
-    //   initialValue
-    // ),
-
     const result = {
-      lineItems: cart,
+      lineItems: [],
       idCart: req.params.id,
-      totalItems: cart.length,
+      totalItems: 0,
       subTotal: 0,
     };
 
@@ -117,9 +115,7 @@ export const getCart = async (req, res) => {
 
 export const addToCart = async (req, res) => {
   try {
-    const priceProd = await ProductModel.findOne({
-      idProduct: req.body.idProduct,
-    });
+    const priceProd = await ProductModel.findById(req.body.idProduct);
 
     let cart;
 
@@ -146,7 +142,7 @@ export const addToCart = async (req, res) => {
       cart.save();
     }
 
-    return res.status(200).json(cart);
+    res.status(200).json(cart);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -232,42 +228,51 @@ export const addToCart = async (req, res) => {
 
 export const updateToCart = async (req, res) => {
   try {
-    const priceProd = await ProductModel.findOne({
-      idProduct: req.body.idProduct,
-    });
+    const priceProd = await ProductModel.findById(req.body.idProduct);
 
     let cart;
 
-    cart = await Cart2Model.findOneAndUpdate(
-      {
-        idCart: req.params.id,
-        product: req.body.idProduct,
-      },
-      {
-        subQuantity: req.body.quantity,
-      },
-      {
-        new: true,
-      }
-    );
+    // cart = await Cart2Model.findOneAndUpdate(
+    //   {
+    //     idCart: req.params.id,
+    //     product: req.body.idProduct,
+    //   },
+    //   {
+    //     subQuantity: req.body.quantity,
+    //   },
+    //   {
+    //     new: true,
+    //   }
+    // );
 
-    // cart = await Cart2Model.aggregate([
-    //   // { $match: { idCart: req.params.id } },
-    //   { $match: { idProduct: req.body.idProduct } },
-    //   // {
-    //   //   $set: {
-    //   //     subQuantity: req.body.quantity,
-    //   //     subTotalProduct: {
-    //   //       $multiply: [
-    //   //         {
-    //   //           $toInt: priceProd.price.raw,
-    //   //         },
-    //   //         req.body.quantity,
-    //   //       ],
-    //   //     },
-    //   //   },
-    //   // },
-    // ]);
+    console.log(mongoose.Types.ObjectId(req.body.idProduct));
+
+    cart = await Cart2Model.aggregate([
+      { $match: { idCart: req.params.id } },
+      {
+        $match: {
+          product: mongoose.Types.ObjectId(req.body.idProduct),
+        },
+      },
+      {
+        $set: {
+          subQuantity: req.body.quantity,
+        },
+      },
+      {
+        $set: {
+          subTotalProduct: {
+            $multiply: [
+              {
+                $toInt: priceProd.price.raw,
+              },
+              req.body.quantity,
+            ],
+          },
+        },
+      },
+      { $out: 'cart2' },
+    ]);
 
     console.log({ cart });
 
@@ -277,49 +282,62 @@ export const updateToCart = async (req, res) => {
   }
 };
 
+// export const removeToCart = async (req, res) => {
+//   try {
+//     const cart = await CartModel.aggregate([
+//       {
+//         $match: {
+//           idCart: req.params.id,
+//         },
+//       },
+//       {
+//         $set: {
+//           lineItems: {
+//             $filter: {
+//               input: '$lineItems',
+//               as: 'item',
+//               cond: {
+//                 $ne: ['$$item.idProduct', req.params.idProduct],
+//               },
+//             },
+//           },
+//         },
+//       },
+//       {
+//         $set: {
+//           subTotal: {
+//             $cond: {
+//               if: ['lineItems', []],
+//               then: 0,
+//               else: {
+//                 $sum: {
+//                   $multiply: [
+//                     '$lineItems.subQuantity',
+//                     {
+//                       $toInt: '$lineItems.product.price.raw',
+//                     },
+//                   ],
+//                 },
+//               },
+//             },
+//           },
+//         },
+//       },
+//       { $out: 'carts' },
+//     ]);
+
+//     res.status(200).json(cart);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
 export const removeToCart = async (req, res) => {
   try {
-    const cart = await CartModel.aggregate([
-      {
-        $match: {
-          idCart: req.params.id,
-        },
-      },
-      {
-        $set: {
-          lineItems: {
-            $filter: {
-              input: '$lineItems',
-              as: 'item',
-              cond: {
-                $ne: ['$$item.idProduct', req.params.idProduct],
-              },
-            },
-          },
-        },
-      },
-      {
-        $set: {
-          subTotal: {
-            $cond: {
-              if: ['lineItems', []],
-              then: 0,
-              else: {
-                $sum: {
-                  $multiply: [
-                    '$lineItems.subQuantity',
-                    {
-                      $toInt: '$lineItems.product.price.raw',
-                    },
-                  ],
-                },
-              },
-            },
-          },
-        },
-      },
-      { $out: 'carts' },
-    ]);
+    const cart = await Cart2Model.findOneAndRemove({
+      idCart: req.params.id,
+      product: req.params.idProduct,
+    });
 
     res.status(200).json(cart);
   } catch (err) {
@@ -327,22 +345,34 @@ export const removeToCart = async (req, res) => {
   }
 };
 
+// export const removeAllCart = async (req, res) => {
+//   try {
+//     const cart = await CartModel.aggregate([
+//       { $match: { idCart: req.params.id } },
+//       {
+//         $set: {
+//           lineItems: [],
+//         },
+//       },
+//       {
+//         $set: {
+//           subTotal: 0,
+//         },
+//       },
+//       { $out: 'carts' },
+//     ]);
+
+//     res.status(200).json(cart);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };
+
 export const removeAllCart = async (req, res) => {
   try {
-    const cart = await CartModel.aggregate([
-      { $match: { idCart: req.params.id } },
-      {
-        $set: {
-          lineItems: [],
-        },
-      },
-      {
-        $set: {
-          subTotal: 0,
-        },
-      },
-      { $out: 'carts' },
-    ]);
+    const cart = await Cart2Model.deleteMany({
+      idCart: req.params.id,
+    });
 
     res.status(200).json(cart);
   } catch (err) {
