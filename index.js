@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { authenToken } from './app/controllers/auth.controllers.js';
 import auth from './app/routers/auth.routers.js';
 import cart from './app/routers/Cart.routers.js';
+import favor from './app/routers/Favor.routers.js';
 import products from './app/routers/Product.routers.js';
 import user from './app/routers/User.routers.js';
 dotenv.config({ path: './development.env' });
@@ -18,6 +19,7 @@ app.use('/api/products', products);
 app.use('/api/auth', auth);
 app.use('/api/user', user);
 app.use('/api/cart', authenToken, cart);
+app.use('/api/favor', authenToken, favor);
 
 mongoose
   .connect(process.env.DATABASE_URL, {

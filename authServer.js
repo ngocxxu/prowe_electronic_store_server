@@ -1,10 +1,8 @@
-import express, { response } from 'express';
 import cors from 'cors';
-import jwt from 'jsonwebtoken';
-import products from './app/routers/Product.routers.js';
-import user from './app/routers/User.routers.js';
-import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 dotenv.config({ path: './development.env' });
 const app = express();
 
