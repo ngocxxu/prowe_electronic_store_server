@@ -1,6 +1,4 @@
-import { Cart2Model } from '../models/Cart2.models.js';
 import { FavorModel } from '../models/Favor.models.js';
-import { ProductModel } from '../models/Product.models.js';
 
 export const getFavor = async (req, res) => {
   try {
@@ -15,7 +13,7 @@ export const getFavor = async (req, res) => {
         .lean();
 
       const result = {
-        lineItems: favor,
+        favorItems: favor,
         idFavor: req.params.id,
       };
 
@@ -23,7 +21,7 @@ export const getFavor = async (req, res) => {
     }
 
     const result = {
-      lineItems: [],
+      favorItems: [],
       idFavor: req.params.id,
     };
 
@@ -35,22 +33,12 @@ export const getFavor = async (req, res) => {
 
 export const addToFavor = async (req, res) => {
   try {
-    const priceProd = await ProductModel.findById(req.body.idProduct);
-
     let favor;
 
-    favor = await FavorModel.findOneAndUpdate(
-      {
-        idFavor: req.params.id,
-        product: req.body.idProduct,
-      },
-      {
-        $inc: {
-          subQuantity: +req.body.quantity,
-          subTotalProduct: +priceProd.price.raw,
-        },
-      }
-    );
+    favor = await FavorModel.findOne({
+      idFavor: req.params.id,
+      product: req.body.idProduct,
+    });
 
     if (!favor) {
       favor = new FavorModel({
@@ -58,8 +46,9 @@ export const addToFavor = async (req, res) => {
         product: req.body.idProduct,
       });
       favor.save();
+    } else {
+      return res.status(200).json(favor);
     }
-
     res.status(200).json(favor);
   } catch (err) {
     res.status(500).json({ error: err.message });
