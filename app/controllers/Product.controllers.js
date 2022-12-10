@@ -2,10 +2,6 @@ import { ProductModel } from '../models/Product.models.js';
 
 export const getAllProducts = async (req, res) => {
   try {
-    // const post = new ProductModel({});
-    // post.save();
-
-    // find() : trả về tất cả các bài post
     const products = await ProductModel.find();
     res.status(200).json(products);
   } catch (err) {
@@ -15,10 +11,8 @@ export const getAllProducts = async (req, res) => {
 
 export const getProduct = async (req, res) => {
   try {
-    // const isExist = ProductModel.find({ _id: req.params.id }).count() > 0;
-    // if (isExist) return res.status(400).json('Not found!');
+    const isExist = await ProductModel.findById(req.params.id);
 
-    const isExist = await ProductModel.find({ _id: req.params.id }).limit(1).length === 1;
     if (!isExist) {
       return res.status(401).json('Wrong IdProduct');
     }
