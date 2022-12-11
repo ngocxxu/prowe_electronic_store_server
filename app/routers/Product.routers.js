@@ -1,9 +1,8 @@
 import express from 'express';
-import { authenToken } from '../controllers/auth.controllers.js';
 import {
+  createProduct,
   getAllProducts,
   getProduct,
-  createProduct,
 } from '../controllers/Product.controllers.js';
 
 const router = express.Router();

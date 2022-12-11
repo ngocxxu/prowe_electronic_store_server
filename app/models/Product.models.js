@@ -71,4 +71,6 @@ const schema = new mongoose.Schema(
   { timestamps: true }
 );
 
+schema.index({ name: 'text' });
+
 export const ProductModel = mongoose.model('Product', schema);
