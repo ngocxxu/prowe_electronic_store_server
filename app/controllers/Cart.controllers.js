@@ -60,13 +60,7 @@ export const addToCart = async (req, res) => {
     );
 
     if (!cart) {
-      cart = new Cart2Model({
-        idCart: req.params.id,
-        product: req.body.idProduct,
-        subQuantity: 1,
-        subTotalProduct: priceProd.price.raw,
-      });
-      cart.save();
+      createCartNonExist(req, cart, priceProd);
     }
 
     res.status(200).json(cart);
@@ -81,7 +75,7 @@ export const updateToCart = async (req, res) => {
 
     let cart;
 
-    cart = await Cart2Model.updateOne(
+    cart = await Cart2Model.findOneAndUpdate(
       {
         idCart: req.params.id,
         product: req.body.idProduct,
@@ -106,6 +100,13 @@ export const updateToCart = async (req, res) => {
         },
       ]
     );
+
+    console.log({cart})
+
+    if (!cart) {
+      console.log('hello')
+      createCartNonExist(req, cart, priceProd);
+    }
 
     res.status(200).json(cart);
   } catch (err) {
@@ -136,4 +137,14 @@ export const removeAllCart = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+};
+
+export const createCartNonExist = (request, cart, priceProd) => {
+  cart = new Cart2Model({
+    idCart: request.params.id,
+    product: request.body.idProduct,
+    subQuantity: request.body.quantity,
+    subTotalProduct: priceProd.price.raw * request.body.quantity,
+  });
+  cart.save();
 };
