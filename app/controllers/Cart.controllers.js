@@ -4,6 +4,7 @@ import { ProductModel } from '../models/Product.models.js';
 export const getCart = async (req, res) => {
   try {
     let cart;
+    let result;
     cart = await Cart2Model.findOne({ idCart: req.params.id });
 
     if (cart) {
@@ -13,7 +14,7 @@ export const getCart = async (req, res) => {
         .populate('product')
         .lean();
 
-      const result = {
+      result = {
         lineItems: cart,
         idCart: req.params.id,
         totalItems: cart.length,
@@ -27,7 +28,7 @@ export const getCart = async (req, res) => {
       return res.status(200).json(result);
     }
 
-    const result = {
+    result = {
       lineItems: [],
       idCart: req.params.id,
       totalItems: 0,
@@ -44,6 +45,8 @@ export const addToCart = async (req, res) => {
   try {
     const priceProd = await ProductModel.findById(req.body.idProduct);
 
+    const multiPriceProd = priceProd.price.raw * req.body.quantity
+
     let cart;
 
     cart = await Cart2Model.findOneAndUpdate(
@@ -54,13 +57,13 @@ export const addToCart = async (req, res) => {
       {
         $inc: {
           subQuantity: +req.body.quantity,
-          subTotalProduct: +priceProd.price.raw,
+          subTotalProduct: +multiPriceProd,
         },
       }
     );
 
     if (!cart) {
-      createCartNonExist(req, cart, priceProd);
+      createCartNonExist(req, cart, multiPriceProd);
     }
 
     res.status(200).json(cart);
@@ -101,10 +104,10 @@ export const updateToCart = async (req, res) => {
       ]
     );
 
-    console.log({cart})
+    console.log({ cart });
 
     if (!cart) {
-      console.log('hello')
+      console.log('hello');
       createCartNonExist(req, cart, priceProd);
     }
 
@@ -139,12 +142,12 @@ export const removeAllCart = async (req, res) => {
   }
 };
 
-export const createCartNonExist = (request, cart, priceProd) => {
+export const createCartNonExist = (request, cart, multiPriceProd) => {
   cart = new Cart2Model({
     idCart: request.params.id,
     product: request.body.idProduct,
     subQuantity: request.body.quantity,
-    subTotalProduct: priceProd.price.raw * request.body.quantity,
+    subTotalProduct: multiPriceProd,
   });
   cart.save();
 };
