@@ -45,7 +45,7 @@ export const addToCart = async (req, res) => {
   try {
     const priceProd = await ProductModel.findById(req.body.idProduct);
 
-    const multiPriceProd = priceProd.price.raw * req.body.quantity
+    const multiPriceProd = priceProd.price.raw * req.body.quantity;
 
     let cart;
 
@@ -103,8 +103,6 @@ export const updateToCart = async (req, res) => {
         },
       ]
     );
-
-    console.log({ cart });
 
     if (!cart) {
       console.log('hello');
