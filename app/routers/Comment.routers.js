@@ -4,13 +4,16 @@ import {
   updateToComment,
   addToComment,
   getComment,
+  getAllComment
 } from '../controllers/Comment.controllers.js';
 
 const router = express.Router();
 
+router.get('/', getAllComment);
+
 router.get('/:id', getComment);
 
-router.post('/:id', addToComment);
+router.post('/', addToComment);
 
 router.put('/:id', updateToComment);
 

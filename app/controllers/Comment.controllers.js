@@ -1,5 +1,17 @@
 import { CommentModel } from '../models/Comment.models.js';
 
+export const getAllComment = async (req, res) => {
+  try {
+    const result = await CommentModel.find()
+      .select('-product -_id -__v')
+      .populate('userId');
+
+    res.status(200).json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 export const getComment = async (req, res) => {
   try {
     const result = await CommentModel.find({ product: req.params.id })
