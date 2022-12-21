@@ -14,6 +14,6 @@ router.post('/:id', addToComment);
 
 router.put('/:id', updateToComment);
 
-router.delete('/:id/items/:idProduct', removeToComment);
+router.delete('/:id', removeToComment);
 
 export default router;
