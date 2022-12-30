@@ -15,6 +15,7 @@ export const getAllComment = async (req, res) => {
 export const getComment = async (req, res) => {
   try {
     const result = await CommentModel.find({ product: req.params.id })
+      .sort({ createdAt: -1 })
       .select('-product -_id -__v')
       .populate('userId');
 
