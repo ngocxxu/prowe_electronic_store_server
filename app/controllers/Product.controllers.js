@@ -1,3 +1,4 @@
+import { CommentModel } from '../models/Comment.models.js';
 import { ProductModel } from '../models/Product.models.js';
 
 export const getAllProducts = async (req, res) => {
@@ -57,6 +58,29 @@ export const getProduct = async (req, res) => {
     if (!isExist) {
       return res.status(401).json('Wrong IdProduct');
     }
+
+    const result = await CommentModel.aggregate([
+      { $match: { product: req.params.id } },
+      {
+        $project: {
+          review: {
+            $avg: '$rate',
+          },
+        },
+      },
+    ]);
+
+    const result2 = await CommentModel.find({ product: req.params.id }, [
+      {
+        $set: {
+          review: {
+            $avg: '$rate',
+          },
+        },
+      },
+    ]);
+
+    console.log({ result, result2 });
 
     const product = await ProductModel.findOne({ _id: req.params.id });
 
