@@ -1,5 +1,6 @@
 import { CommentModel } from '../models/Comment.models.js';
 import { ProductModel } from '../models/Product.models.js';
+import { ObjectId } from 'mongodb';
 
 export const getAllProducts = async (req, res) => {
   try {
@@ -60,31 +61,44 @@ export const getProduct = async (req, res) => {
     }
 
     const result = await CommentModel.aggregate([
-      { $match: { product: req.params.id } },
+      { $match: { product: ObjectId(req.params.id) } },
+      {
+        $group: {
+          _id: null,
+          review: {
+            $avg: '$rate',
+          },
+        },
+      },
       {
         $project: {
-          review: {
-            $avg: '$rate',
-          },
+          _id: 0,
         },
       },
     ]);
 
-    const result2 = await CommentModel.find({ product: req.params.id }, [
+    const product = await ProductModel.aggregate([
+      {
+        $match: {
+          _id: ObjectId(req.params.id),
+        },
+      },
       {
         $set: {
-          review: {
-            $avg: '$rate',
+          avgReviews: {
+            $cond: {
+              if: {
+                $eq: [result, []],
+              },
+              then: 0,
+              else: result[0]?.review,
+            },
           },
         },
       },
     ]);
 
-    console.log({ result, result2 });
-
-    const product = await ProductModel.findOne({ _id: req.params.id });
-
-    res.status(200).json(product);
+    res.status(200).json(product[0]);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

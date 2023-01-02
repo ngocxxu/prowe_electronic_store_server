@@ -29,6 +29,10 @@ const schema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    avgReviews: {
+      type: Number,
+      default: 0,
+    },
     is: {
       hot: {
         type: Boolean,
