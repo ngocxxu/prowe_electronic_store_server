@@ -1,0 +1,51 @@
+version: '3.9'
+services:
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb_backend_prowestore
+    ports:
+      - 27017:27017
+    environment:
+      # - MONGO_INITDB_DATABASE=${DB_NAME}
+      - MONGO_INITDB_ROOT_USERNAME=bono
+      - MONGO_INITDB_ROOT_PASSWORD=ngoc25
+    # volumes:
+    #   - mongodb-data:/data/db
+
+  app-frontend:
+    image: reactjs-prowestore:latest
+    container_name: app_frontend_prowestore
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    # volumes:
+    #   - .:/usr/src/app
+
+  # nginx:
+  #   image: nginx:latest
+  #   container_name: nginx_frontend_prowestore
+  #   ports:
+  #     - "80:80"
+  #   # volumes:
+  #   #   - ./nginx.conf:/etc/nginx/conf.d/default.conf
+  #   #   - ./build:/usr/src/app/build
+  #   depends_on:
+  #     - app-frontend
+
+  app-backend:
+    depends_on:
+      - mongodb
+    container_name: app_backend_prowestore
+    build: .
+    ports:
+      - "4030:4030"
+    environment:
+      - NODE_ENV=production
+    # volumes:
+    #   - .:/app
+    command: npm start
+
+
+  
+  
