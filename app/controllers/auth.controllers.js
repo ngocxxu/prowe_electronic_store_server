@@ -58,7 +58,7 @@ export const loginAuth = async (req, res) => {
       },
       process.env.ACCESS_TOKEN_SECRET,
       {
-        expiresIn: '6days',
+        expiresIn: '600s',
       }
     );
 
@@ -69,7 +69,7 @@ export const loginAuth = async (req, res) => {
       },
       process.env.REFRESH_TOKEN_SECRET,
       {
-        expiresIn: '12days',
+        expiresIn: '2days',
       }
     );
 
