@@ -21,7 +21,7 @@ app.use('/api/auth', auth);
 app.use('/api/user', user);
 app.use('/api/cart', authenToken, cart);
 app.use('/api/favor', authenToken, favor);
-app.use('/api/comment', authenToken, comment);
+app.use('/api/comment', comment);
 
 mongoose
   .connect(process.env.DATABASE_URL, {
