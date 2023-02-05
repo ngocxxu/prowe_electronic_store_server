@@ -5,6 +5,19 @@ import { AuthModel, RTModel } from '../models/auth.models.js';
 dotenv.config({ path: '../../development.env' });
 const { TokenExpiredError } = jwt;
 
+export const getAllUsers = async (req, res) => {
+  try {
+    // const post = new UserModel({});
+    // post.save();
+
+    // find() : trả về tất cả các bài post
+    const users = await AuthModel.find();
+    res.status(200).json(users);
+  } catch (err) {
+    res.status(500).json({ error: err });
+  }
+};
+
 export const registerAuth = async (req, res, next) => {
   try {
     const checkEmail = req.body.email;

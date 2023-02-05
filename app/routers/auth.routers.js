@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  getAllUsers,
   authenToken,
   getMyUser,
   loginAuth,
@@ -10,7 +11,7 @@ import {
 
 const router = express.Router();
 
-// router.get('/', getAllUsers);
+router.get('/', getAllUsers);
 
 router.get('/myUser', authenToken, getMyUser);
 
