@@ -46,7 +46,7 @@ export const addToComparison = async (req, res) => {
       comparison.save();
     } else {
       return res
-        .status(401)
+        .status(400)
         .json({ error: 'You have added this product to your comparison' });
     }
     res.status(200).json(comparison);
