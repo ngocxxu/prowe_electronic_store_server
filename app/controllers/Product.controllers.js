@@ -43,7 +43,9 @@ export const getAllProducts = async (req, res) => {
     }
 
     if (name) {
-      products = await ProductModel.find({ $text: { $search: name } });
+      products = await ProductModel.find({
+        name: { $regex: `.*${name}.*`, $options: 'i' },
+      });
     }
 
     res.status(200).json(products);
